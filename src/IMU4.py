@@ -27,7 +27,6 @@ def message_parser(raw_msg):
        
 
 
-
 if __name__ == '__main__':
     pub1=rospy.Publisher('imu_receiver', Imu, queue_size=1)
     pub2=rospy.Publisher('mag_receiver', MagneticField, queue_size=1)

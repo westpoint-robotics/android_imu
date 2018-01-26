@@ -14,7 +14,7 @@ def message_parser(raw_msg):
         msg2.header.stamp=rospy.Time.now()
         msg1.orientation.x=float(raw_msg[14])
         msg1.orientation.y=float(raw_msg[15])
-        msg1.orientation.z=float(raw_msg[15])
+        msg1.orientation.z=float(raw_msg[16])
         msg1.linear_acceleration.x=float(raw_msg[2])
         msg1.linear_acceleration.y=float(raw_msg[3])
         msg1.linear_acceleration.z=float(raw_msg[4])
