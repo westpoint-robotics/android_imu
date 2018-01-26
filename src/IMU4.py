@@ -1,0 +1,52 @@
+#!/usr/bin/python2
+import socket, traceback, rospy
+
+from sensor_msgs.msg import Imu, MagneticField
+msg1=Imu()
+msg2=MagneticField()
+
+def message_parser(raw_msg):
+    message_len=len(raw_msg)
+    if message_len==17:
+        msg1.header.stamp=rospy.Time.now()
+        msg1.header.frame_id="phone"
+        msg2.header.frame_id="phone"
+        msg2.header.stamp=rospy.Time.now()
+        msg1.orientation.x=float(raw_msg[14])
+        msg1.orientation.y=float(raw_msg[15])
+        msg1.orientation.z=float(raw_msg[16])
+        msg1.linear_acceleration.x=float(raw_msg[2])
+        msg1.linear_acceleration.y=float(raw_msg[3])
+        msg1.linear_acceleration.z=float(raw_msg[4])
+        msg1.angular_velocity.x=float(raw_msg[6])
+        msg1.angular_velocity.y=float(raw_msg[7])
+        msg1.angular_velocity.z=float(raw_msg[8])
+        msg2.magnetic_field.x=float(raw_msg[10])
+        msg2.magnetic_field.y=float(raw_msg[11])
+        msg2.magnetic_field.z=float(raw_msg[12])
+       
+
+
+
+if __name__ == '__main__':
+    pub1=rospy.Publisher('imu_receiver', Imu, queue_size=1)
+    pub2=rospy.Publisher('mag_receiver', MagneticField, queue_size=1)
+    rospy.init_node('sender',anonymous=True)
+    rate=rospy.Rate(10)
+    host=''
+    port=5555
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    s.bind((host, port))
+    while not rospy.is_shutdown():
+        message, address = s.recvfrom(8192)
+        var_list=message.split(',')
+        message_parser(var_list)
+        pub1.publish(msg1)
+        pub2.publish(msg2)
+        
+     
+      
+            
+
