@@ -1,0 +1,70 @@
+#! /usr/bin/env python
+import rospy, time, math, numpy
+
+from sensor_msgs.msg import Imu, MagneticField
+from geometry_msgs.msg import PointStamped
+
+gyr_z=0
+imu_data=Imu()
+
+def callback(data):
+    global imu_data
+    global gyr_z 
+    global last_time
+    imu_data=data
+    gyr_z=float(data.angular_velocity.z)
+
+def expavg_gyr_z(gyr_z,gyr_z_avg_last):
+    gyr_z_exp_avg=gyr_z*.1+gyr_z_avg_last*.9
+    return gyr_z_exp_avg
+
+def expavg_avg_velocity(step_velocity,avg_velocity_last)
+    avg_velocity_exp_avg=step_velocity*.3+avg_velocity_last*.7
+    return avg_velocity_exp_avg
+   
+def subscriber_publisher():
+    global gyr_z
+    global imu_data
+    last_time=0.000
+    lastup=False
+    gyr_z_avg_last=0
+    step=0
+    avg_velocity_last=0.0000000
+    step_length=0.067056
+    rospy.init_node('pedometer', anonymous=True)
+    pub=rospy.Publisher('steps_velocity',PointStamped, queue_size=1)
+    rospy.Subscriber("/imu_data", Imu, callback)
+    rate=rospy.Rate(30)
+    msg=PointStamped()
+    while not rospy.is_shutdown():
+        current_time=str(imu_data.header.stamp)
+        if len(current_time)==19:
+            current_time=current_time[7]+current_time[8]+current_time[9]+'.'+current_time[10:15]
+            current_time=float(current_time)
+            up=False
+            current_gyr_z=expavg_gyr_z(gyr_z,gyr_z_avg_last)
+            if current_gyr_z>0.5:
+                if current_gyr_z>gyr_z_avg_last:
+                    up=True
+                if lastup==False and up==True:
+                    step+=1 
+                    msg.header.stamp=rospy.Time.now()
+                    msg.point.x=step
+                    duration=current_time-last_time
+                    last_time=current_time
+                    step_velocity=step_length/duration
+                    avg_velocity=expavg_avg_velocity(step_velocity,avg_velocity_last)
+                    msg.point.y=avg_velocity
+            pub.publish(msg)                         
+            lastup=up
+            gyr_z_avg_last=current_gyr_z
+            avg_velocity_last=avg_velocity
+            rate.sleep()
+        
+        
+            
+        
+        
+           
+if __name__=='__main__':
+    subscriber_publisher()

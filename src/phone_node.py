@@ -28,9 +28,9 @@ def message_parser(raw_msg):
 
 
 if __name__ == '__main__':
-    pub1=rospy.Publisher('imu_receiver', Imu, queue_size=1)
-    pub2=rospy.Publisher('mag_receiver', MagneticField, queue_size=1)
-    rospy.init_node('sender',anonymous=True)
+    pub1=rospy.Publisher('imu_data', Imu, queue_size=1)
+    pub2=rospy.Publisher('mag_data', MagneticField, queue_size=1)
+    rospy.init_node('phone',anonymous=True)
     rate=rospy.Rate(10)
     host=''
     port=5555
@@ -44,7 +44,5 @@ if __name__ == '__main__':
         message_parser(var_list)
         pub1.publish(msg1)
         pub2.publish(msg2)
-     
-      
             
 
